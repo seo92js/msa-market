@@ -1,11 +1,12 @@
 package com.seojs.userservice.service;
 
 import com.seojs.userservice.dto.OrderResponseDto;
-import com.seojs.userservice.entity.User;
 import com.seojs.userservice.dto.UserRequestDto;
 import com.seojs.userservice.dto.UserResponseDto;
+import com.seojs.userservice.entity.User;
 import com.seojs.userservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,18 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService{
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(username);
+
+        if (user == null)
+            throw new UsernameNotFoundException(username);
+
+        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getEncryptedPassword(),
+                true, true, true, true,
+                new ArrayList<>());
+    }
 
     @Override
     public UserResponseDto createUser(UserRequestDto userRequestDto) {
@@ -53,5 +66,12 @@ public class UserServiceImpl implements UserService{
     @Override
     public List<User> getUserByAll() {
         return userRepository.findAll();
+    }
+
+    @Override
+    public UserResponseDto getUserDetailsByEmail(String email) {
+        User user = userRepository.findByEmail(email);
+
+        return new UserResponseDto(user);
     }
 }
