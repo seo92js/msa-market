@@ -1,5 +1,7 @@
 package com.seojs.userservice.security;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.seojs.userservice.dto.LoginRequestDto;
 import com.seojs.userservice.dto.UserResponseDto;
@@ -19,6 +21,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
+import java.util.Date;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -48,5 +51,13 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         String username = ((User) authResult.getPrincipal()).getUsername();
 
         UserResponseDto userResponseDto = userService.getUserDetailsByEmail(username);
+
+        String jwtToken = JWT.create()
+                .withSubject(userResponseDto.getUserId())
+                .withExpiresAt(new Date(System.currentTimeMillis() + Integer.parseInt(env.getProperty("token.expiration_time"))))
+                .sign(Algorithm.HMAC512(env.getProperty("token.secret")));
+
+        response.addHeader("Authorization", env.getProperty("token.prefix") + jwtToken);
+        response.addHeader("userId", userResponseDto.getUserId());
     }
 }
