@@ -4,8 +4,26 @@ server:
 spring:
   application:
     name: config-service
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
+  profiles:
+    active: native
   cloud:
     config:
       server:
+        native:
+          search-locations: file://${user.home}/desktop/project/msa-market/native-file-repo
         git:
+          uri: https://github.com/seo92js/msa-market
+          search-paths:
+            - 'git-local-repo'
 #          uri: file:///Users/seojeongseop/desktop/project/git-local-repo
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, busrefresh
