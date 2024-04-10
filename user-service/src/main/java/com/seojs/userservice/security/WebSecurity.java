@@ -38,6 +38,7 @@ public class WebSecurity {
                 .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
                         .requestMatchers("/user-service/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/**").permitAll()
                         //.requestMatchers("/**").access(new WebExpressionAuthorizationManager("hasIpAddress('localhost')"))
                 )
